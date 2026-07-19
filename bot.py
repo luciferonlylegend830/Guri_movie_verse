@@ -70,7 +70,7 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if query in caption:
             new_caption = f"🎬 **{data['file_name']}**\n\n📢 **Joined: @Gurimoviesverse**\n🍿 **Enjoy Your Movie!**"
             
-                            if data['file_type'] == "video":
+        if data['file_type'] == "video":
             sent_msg = await context.bot.send_video(
                 chat_id=update.effective_chat.id,
                 video=data['file_id'],
