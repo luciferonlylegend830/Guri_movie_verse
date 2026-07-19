@@ -8,7 +8,7 @@ from aiohttp import web
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 TOKEN = "8942349455:AAGrcoY16mYheXkze0dha6pelgaZUuJ7HjU"
-CHANNEL_ID = -1002242502830 # Guri Movies Verse Channel ID
+CHANNEL_ID = -1002748829128 # Guri Movies Verse Channel ID
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("हेलो भाई! मैं चालू हूँ। ग्रुप में मूवी का नाम सर्च करो।")
