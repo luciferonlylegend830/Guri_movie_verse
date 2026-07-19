@@ -4,7 +4,13 @@ import asyncio
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from aiohttp import web
-
+async def delete_message_after_delay(context, chat_id, message_id):
+    await asyncio.sleep(300) # 5 मिनट का वेट
+    try:
+        await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+    except Exception as e:
+        logging.error(f"Error deleting message: {e}")
+        
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 TOKEN = "8942349455:AAGrcoY16mYheXkze0dha6pelgaZUuJ7HjU"
@@ -65,19 +71,22 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
             new_caption = f"🎬 **{data['file_name']}**\n\n📢 **Joined: @Guri_movies_verse**\n🍿 **Enjoy Your Movie!**"
             
             if data['file_type'] == "video":
-                await context.bot.send_video(
+                                sent_msg = await context.bot.send_video(
                     chat_id=update.effective_chat.id,
                     video=data['file_id'],
                     caption=new_caption,
                     parse_mode="Markdown"
                 )
-            elif data['file_type'] == "document":
-                await context.bot.send_document(
+                asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+            
+                            sent_msg = await context.bot.send_document(
                     chat_id=update.effective_chat.id,
                     document=data['file_id'],
                     caption=new_caption,
                     parse_mode="Markdown"
                 )
+                asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+            
             found = True
             break
             
