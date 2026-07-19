@@ -1,7 +1,9 @@
 import logging
+import os
 import asyncio
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from aiohttp import web
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -16,53 +18,77 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(query) < 3:
         return
 
-    found = False
     try:
-        # Note: python-telegram-bot में get_chat_history सीधे async for सपोर्ट नहीं करता, 
-        # इसलिए हम इसे सामान्य रूप से कॉल करेंगे।
-        chat = await context.bot.get_chat(CHANNEL_ID)
+        messages = await context.bot.get_chat_history(chat_id=CHANNEL_ID, limit=50)
+        found = False
         
-        # यह एक बैकअप तरीका है, अगर चैनल से डायरेक्ट मैसेज ढूंढने में समस्या आए 
-        # तो बॉट को एडमिन बनाकर रखना जरूरी है।
-        async for message in context.application.bot.get_chat_history(chat_id=CHANNEL_ID, limit=100):
-            caption = ""
+        for message in messages:
+            caption_text = ""
             if message.caption:
-                caption = message.caption.lower()
+                caption_text = message.caption
             elif message.text:
-                caption = message.text.lower()
+                caption_text = message.text
             
-            if query in caption:
-                await context.application.bot.copy_message(
-                    chat_id=update.effective_chat.id,
-                    from_chat_id=CHANNEL_ID,
-                    message_id=message.message_id
-                )
+            # मूवी सर्च करने के लिए मैच चेक कर रहा है
+            if query in caption_text.lower():
+                # पुराना सारा टेक्स्ट हटाकर नया सुंदर हेडर बना रहे हैं
+                # अगर फ़ाइल का नाम चाहिए तो वो निकाल लेगा, नहीं तो सीधा नया कैप्शन सेट करेगा
+                file_name = ""
+                if message.document:
+                    file_name = message.document.file_name
+                elif message.video:
+                    file_name = message.video.file_name if message.video.file_name else "Movie File"
+                else:
+                    file_name = query.capitalize()
+
+                # यहाँ आप अपना मनपसंद हेडर टेक्स्ट बदल सकते हो
+                new_caption = f"🎬 **{file_name}**\n\n📢 **Joined: @Guri_movies_verse**\n🍿 **Enjoy Your Movie!**"
+
+                # copy_message की जगह send_photo/send_video/send_document इस्तेमाल कर रहे हैं ताकि कैप्शन बदला जा सके
+                if message.video:
+                    await context.bot.send_video(
+                        chat_id=update.effective_chat.id,
+                        video=message.video.file_id,
+                        caption=new_caption,
+                        parse_mode="Markdown"
+                    )
+                elif message.document:
+                    await context.bot.send_document(
+                        chat_id=update.effective_chat.id,
+                        document=message.document.file_id,
+                        caption=new_caption,
+                        parse_mode="Markdown"
+                    )
+                else:
+                    # अगर नॉर्मल टेक्स्ट मैसेज है
+                    await context.bot.send_message(
+                        chat_id=update.effective_chat.id,
+                        text=new_caption,
+                        parse_mode="Markdown"
+                    )
+                
                 found = True
         
         if not found:
-            pass
+            await update.message.reply_text("🔍 भाई, यह मूवी चैनल में नहीं मिली। कृपया नाम सही से लिखें।")
             
     except Exception as e:
         logging.error(f"Search Error: {e}")
-        await update.message.reply_text("⚠ सर्च करते समय एक खराबी आई। कृपया पक्का करें कि बॉट चैनल में Admin है।")
+        await update.message.reply_text("⚠ सर्च करते समय एक खराबी आई। कृपया पक्का करें कि बॉट आपके चैनल में एड敏 है।")
 
 async def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
     
-    # रेंडर पर क्रैश से बचने के लिए सही तरीका
     await app.initialize()
     await app.start()
     print("Bot started...")
     await app.updater.start_polling()
     
-    # बॉट को चालू रखने के लिए लूप
-        import os
-    from aiohttp import web
-    
+    # रेंडर के टाइम आऊट को रोकने के लिए वेब सर्वर
     async def handle(request):
-        return web.Response(text="Bot is running!")
+        return web.Response(text="Bot is running smoothly!")
         
     app_web = web.Application()
     app_web.router.add_get('/', handle)
@@ -72,7 +98,6 @@ async def main():
     await site.start()
     
     await asyncio.Event().wait()
-
 
 if __name__ == '__main__':
     try:
