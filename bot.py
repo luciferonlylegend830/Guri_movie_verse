@@ -82,26 +82,8 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
             break
             
     if not found:
-        # अगर डेटाबेस में न मिले, तो यह पुराना तरीका बैकअप के लिए ट्राई करेगा
-        try:
-            messages = await context.bot.get_chat_history(chat_id=CHANNEL_ID, limit=30)
-            for message in messages:
-                c_text = message.caption if message.caption else (message.text if message.text else "")
-                if query in c_text.lower():
-                    f_name = message.document.file_name if message.document else (message.video.file_name if message.video and message.video.file_name else query.capitalize())
-                    new_caption = f"🎬 **{f_name}**\n\n📢 **Joined: @Guri_movies_verse**\n🍿 **Enjoy Your Movie!**"
-                    
-                    if message.video:
-                        await context.bot.send_video(chat_id=update.effective_chat.id, video=message.video.file_id, caption=new_caption, parse_mode="Markdown")
-                    elif message.document:
-                        await context.bot.send_document(chat_id=update.effective_chat.id, document=message.document.file_id, caption=new_caption, parse_mode="Markdown")
-                    found = True
-                    break
-        except Exception as e:
-            logging.error(f"Backup search failed: {e}")
-            
-        if not found:
-            await update.message.reply_text("🔍 भाई, यह मूवी चैनल में नहीं मिली या बॉट अभी लोड कर रहा है। कृपया नाम सही से लिखें।")
+        # अगर डेटाबेस में नहीं मिलता, तो यूज़र को सही मेसेज दिखाएंगे बिना क्रैश हुए
+        await update.message.reply_text("🔍 भाई, यह मूवी चैनल में नहीं मिली या बॉट अभी लोड कर रहा है। कृपया नाम सही से लिखें।\n\n💡 टिप: अगर मूवी चैनल में है, तो उसे एक बार चैनल में दोबारा Forward कर दें ताकि बॉट उसे याद कर ले!")
 
 async def handle(request):
     return web.Response(text="Bot is running smoothly!")
@@ -132,4 +114,4 @@ if __name__ == '__main__':
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         pass
-                    
+        
