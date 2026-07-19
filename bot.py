@@ -93,8 +93,8 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
             found = True
             break
           
-        if not found:
-        await update.message.reply_text("🔍 Sorry, this movie was not found in the channel.")
+         if not found:
+          await update.message.reply_text("🔍 Sorry, this movie was not found in the channel.")
 
 async def handle(request):
     return web.Response(text="Bot is running smoothly!")
