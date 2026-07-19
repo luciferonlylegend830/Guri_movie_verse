@@ -70,22 +70,24 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if query in caption:
             new_caption = f"🎬 **{data['file_name']}**\n\n📢 **Joined: @Guri_movies_verse**\n🍿 **Enjoy Your Movie!**"
             
-            if data['file_type'] == "video":
-                                sent_msg = await context.bot.send_video(
-                    chat_id=update.effective_chat.id,
-                    video=data['file_id'],
-                    caption=new_caption,
-                    parse_mode="Markdown"
-                )
-                asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+                    if data['file_type'] == "video":
+                    sent_msg = await context.bot.send_video(
+                chat_id=update.effective_chat.id,
+                video=data['file_id'],
+                caption=new_caption,
+                parse_mode="Markdown"
+                   )
+                    asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+
+        elif data['file_type'] == "document":
+            sent_msg = await context.bot.send_document(
+                chat_id=update.effective_chat.id,
+                document=data['file_id'],
+                caption=new_caption,
+                parse_mode="Markdown"
+            )
+                  asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
             
-                            sent_msg = await context.bot.send_document(
-                    chat_id=update.effective_chat.id,
-                    document=data['file_id'],
-                    caption=new_caption,
-                    parse_mode="Markdown"
-                )
-                asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
             
             found = True
             break
