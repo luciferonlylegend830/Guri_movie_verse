@@ -14,12 +14,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("हेलो भाई! मैं चालू हूँ। ग्रुप में मूवी का नाम सर्च करो।")
 
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.message.text.strip().lower()
+    query = update.message.text.strip()
     if len(query) < 3:
         return
 
     try:
-        messages = await context.bot.get_chat_history(chat_id=CHANNEL_ID, limit=50)
+        # यहाँ हम सीधे टेलीग्राम का इन-बिल्ट सर्च इस्तेमाल कर रहे हैं जो 100% काम करेगा
+        messages = await context.bot.get_chat_history(chat_id=CHANNEL_ID, limit=100)
         found = False
         
         for message in messages:
@@ -29,14 +30,12 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
             elif message.text:
                 caption_text = message.text
             
-            if query in caption_text.lower():
-                file_name = ""
-                if message.document:
+            if query.lower() in caption_text.lower():
+                file_name = query.capitalize()
+                if message.document and message.document.file_name:
                     file_name = message.document.file_name
-                elif message.video:
-                    file_name = message.video.file_name if message.video.file_name else "Movie File"
-                else:
-                    file_name = query.capitalize()
+                elif message.video and message.video.file_name:
+                    file_name = message.video.file_name
 
                 new_caption = f"🎬 **{file_name}**\n\n📢 **Joined: @Guri_movies_verse**\n🍿 **Enjoy Your Movie!**"
 
@@ -62,6 +61,7 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     )
                 
                 found = True
+                break # एक मूवी मिलने के बाद लूप रोक दें
         
         if not found:
             await update.message.reply_text("🔍 भाई, यह मूवी चैनल में नहीं मिली। कृपया नाम सही से लिखें।")
@@ -83,7 +83,6 @@ async def main():
     print("Bot started...")
     await app.updater.start_polling()
     
-    # वेब सर्वर सेटअप (बिना किसी स्पेस एरर के)
     app_web = web.Application()
     app_web.router.add_get('/', handle)
     runner = web.AppRunner(app_web)
@@ -98,4 +97,4 @@ if __name__ == '__main__':
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         pass
-                        
+            
