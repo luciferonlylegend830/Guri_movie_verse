@@ -58,8 +58,21 @@ async def main():
     await app.updater.start_polling()
     
     # बॉट को चालू रखने के लिए लूप
-    while True:
-        await asyncio.sleep(3600)
+        import os
+    from aiohttp import web
+    
+    async def handle(request):
+        return web.Response(text="Bot is running!")
+        
+    app_web = web.Application()
+    app_web.router.add_get('/', handle)
+    runner = web.AppRunner(app_web)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', int(os.environ.get('PORT', 10000)))
+    await site.start()
+    
+    await asyncio.Event().wait()
+
 
 if __name__ == '__main__':
     try:
