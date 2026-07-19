@@ -29,10 +29,7 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
             elif message.text:
                 caption_text = message.text
             
-            # मूवी सर्च करने के लिए मैच चेक कर रहा है
             if query in caption_text.lower():
-                # पुराना सारा टेक्स्ट हटाकर नया सुंदर हेडर बना रहे हैं
-                # अगर फ़ाइल का नाम चाहिए तो वो निकाल लेगा, नहीं तो सीधा नया कैप्शन सेट करेगा
                 file_name = ""
                 if message.document:
                     file_name = message.document.file_name
@@ -41,10 +38,8 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 else:
                     file_name = query.capitalize()
 
-                # यहाँ आप अपना मनपसंद हेडर टेक्स्ट बदल सकते हो
                 new_caption = f"🎬 **{file_name}**\n\n📢 **Joined: @Guri_movies_verse**\n🍿 **Enjoy Your Movie!**"
 
-                # copy_message की जगह send_photo/send_video/send_document इस्तेमाल कर रहे हैं ताकि कैप्शन बदला जा सके
                 if message.video:
                     await context.bot.send_video(
                         chat_id=update.effective_chat.id,
@@ -60,7 +55,6 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         parse_mode="Markdown"
                     )
                 else:
-                    # अगर नॉर्मल टेक्स्ट मैसेज है
                     await context.bot.send_message(
                         chat_id=update.effective_chat.id,
                         text=new_caption,
@@ -74,7 +68,10 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
     except Exception as e:
         logging.error(f"Search Error: {e}")
-        await update.message.reply_text("⚠ सर्च करते समय एक खराबी आई। कृपया पक्का करें कि बॉट आपके चैनल में एड敏 है।")
+        await update.message.reply_text("⚠ सर्च करते समय एक खराबी आई। कृपया पक्का करें कि बॉट आपके चैनल में एडमिन है।")
+
+async def handle(request):
+    return web.Response(text="Bot is running smoothly!")
 
 async def main():
     app = Application.builder().token(TOKEN).build()
@@ -86,10 +83,7 @@ async def main():
     print("Bot started...")
     await app.updater.start_polling()
     
-    # रेंडर के टाइम आऊट को रोकने के लिए वेब सर्वर
-    async def handle(request):
-        return web.Response(text="Bot is running smoothly!")
-        
+    # वेब सर्वर सेटअप (बिना किसी स्पेस एरर के)
     app_web = web.Application()
     app_web.router.add_get('/', handle)
     runner = web.AppRunner(app_web)
@@ -104,4 +98,4 @@ if __name__ == '__main__':
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         pass
-        
+                        
