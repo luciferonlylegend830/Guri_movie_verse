@@ -5,7 +5,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-TOKEN = "8942349455:AAGrcoY16myHeXkzeOdha6pelgaZUuJ7HjU"
+TOKEN = "8942349455:AAGrcoY16mYheXkze0dha6pelgaZUuJ7HjU"
 CHANNEL_ID = -1002242502830 # Guri Movies Verse Channel ID
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
