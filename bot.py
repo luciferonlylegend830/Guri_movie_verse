@@ -20,7 +20,7 @@ CHANNEL_ID = -1002748829128 # Guri Movies Verse Channel ID
 movie_database = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("हेलो भाई! मैं चालू हूँ। ग्रुप में मूवी का नाम सर्च करो।")
+    await update.message.reply_text("hello guys! I'm wakeup Find your movie in the group.")
 
 # जब चैनल में नई पोस्ट आएगी, बॉट उसे यहाँ सेव कर लेगा
 async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -68,33 +68,33 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # अपनी सेव की हुई मेमोरी में सर्च करना
     for caption, data in movie_database.items():
         if query in caption:
-            new_caption = f"🎬 **{data['file_name']}**\n\n📢 **Joined: @Guri_movies_verse**\n🍿 **Enjoy Your Movie!**"
+            new_caption = f"🎬 **{data['file_name']}**\n\n📢 **Joined: @Gurimoviesverse**\n🍿 **Enjoy Your Movie!**"
             
-                    if data['file_type'] == "video":
-                    sent_msg = await context.bot.send_video(
+                            if data['file_type'] == "video":
+            sent_msg = await context.bot.send_video(
                 chat_id=update.effective_chat.id,
                 video=data['file_id'],
-                caption=new_caption,
+                caption=f"🎬 **{data['file_name']}**\n\n⚠️ This file will be automatically deleted in 5 minutes for security.\n📢 @Guri_movies_verse",
                 parse_mode="Markdown"
-                   )
-                    asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+            )
+            asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
 
         elif data['file_type'] == "document":
             sent_msg = await context.bot.send_document(
                 chat_id=update.effective_chat.id,
                 document=data['file_id'],
-                caption=new_caption,
+                caption=f"🎬 **{data['file_name']}**\n\n⚠️ This file will be automatically deleted in 5 minutes for security.\n📢 @Guri_movies_verse",
                 parse_mode="Markdown"
             )
-                  asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+            asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+            
             
             
             found = True
             break
             
     if not found:
-        # अगर डेटाबेस में नहीं मिलता, तो यूज़र को सही मेसेज दिखाएंगे बिना क्रैश हुए
-        await update.message.reply_text("🔍 भाई, यह मूवी चैनल में नहीं मिली या बॉट अभी लोड कर रहा है। कृपया नाम सही से लिखें।\n\n💡 टिप: अगर मूवी चैनल में है, तो उसे एक बार चैनल में दोबारा Forward कर दें ताकि बॉट उसे याद कर ले!")
+        await update.message.reply_text("🔍 Sorry, this movie was not found in the channel.")
 
 async def handle(request):
     return web.Response(text="Bot is running smoothly!")
