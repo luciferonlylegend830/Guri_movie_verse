@@ -5,10 +5,13 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from aiohttp import web
 from motor.motor_asyncio import AsyncIOMotorClient
-MONGO_URI = "mongodb+srv://luciferonlylegend830_db_user:GuriSingh@123@guricluster.f3ytryg.mongodb.net/?retryWrites=true&w=majority&appName=GURICLUSTER"
-client = AsyncIOMotorClient(MONGO_URI)
-db = client['GURICLUSTER']
-movies_col = db['movies']
+from urllib.parse import quote_plus
+# डेटाबेस क्रेडेंशियल्स
+username = quote_plus("luciferonlylegend830_db_user")
+password = quote_plus("Gurisingh@123")
+cluster_url = "guricluster.f3ytryg.mongodb.net"
+# सही URI फॉर्मेट
+MONGO_URI = f"mongodb+srv://{username}:{password}@{cluster_url}/?retryWrites=true&w=majority"
 async def delete_message_after_delay(context, chat_id, message_id):
     await asyncio.sleep(300) # 5 मिनट का वेट
     try:
