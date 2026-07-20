@@ -57,7 +57,6 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 {"$set": {"file_id": file_id, "file_type": file_type, "file_name": file_name}},
                 upsert=True
                         )
-            
 logging.info(f"Saved movie: {file_name}")
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.message.text.strip().lower()
