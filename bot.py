@@ -54,13 +54,14 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
             if message.document.file_name:
                 file_name = message.document.file_name
                 
-        if file_id:
-                        await movies_col.update_one(
-                {"caption": caption_text.lower()},
-                {"$set": {"file_id": file_id, "file_type": file_type, "file_name": file_name}},
-                upsert=True
-                        )
-logging.info(f"Saved movie: {file_name}")
+            if file_id:
+        await movies_col.update_one(
+            {"caption": caption_text.lower()},
+            {"$set": {"file_id": file_id, "file_name": file_name, "file_type": file_type}},
+            upsert=True
+        )
+        
+
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.message.text.strip().lower()
 # 1. सुरक्षा: अगर सर्च 5 अक्षरों से छोटी है
