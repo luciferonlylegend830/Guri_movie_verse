@@ -58,8 +58,7 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 upsert=True
                         )
             
-            logging.info(f"Saved movie: {file_name}")
-
+logging.info(f"Saved movie: {file_name}")
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.message.text.strip().lower()
 # 1. सुरक्षा: अगर सर्च 5 अक्षरों से छोटी है
