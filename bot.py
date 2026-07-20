@@ -79,21 +79,22 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # 3. सुरक्षा: सिर्फ पहली 1 मूवी भेजें
-    data = results[0] 
+        data = results[0] 
     if data['file_type'] == "video":
         sent_msg = await context.bot.send_video(
             chat_id=update.effective_chat.id,
             video=data['file_id'],
-            caption=f"**{data['file_name']}**\n\n⚠️ This file will be auto-deleted in 5 minutes."
+            caption=f"🎬 **{data['file_name']}**\n🔗 Join: @GuriMoviesVerse 🍿🎥\n⚠️ This file will be auto-deleted in 5 minutes."
         )
         asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
     elif data['file_type'] == "document":
         sent_msg = await context.bot.send_document(
             chat_id=update.effective_chat.id,
             document=data['file_id'],
-            caption=f"**{data['file_name']}**\n\n⚠️ This file will be auto-deleted in 5 minutes."
+            caption=f"🎬 **{data['file_name']}**\n🔗 Join: @GuriMoviesVerse 🍿🎥\n⚠️ This file will be auto-deleted in 5 minutes."
         )
         asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+        
         
 
 async def handle(request):
