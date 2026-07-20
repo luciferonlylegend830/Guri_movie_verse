@@ -55,11 +55,11 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 file_name = message.document.file_name
                 
             if file_id:
-        await movies_col.update_one(
-            {"caption": caption_text.lower()},
-            {"$set": {"file_id": file_id, "file_name": file_name, "file_type": file_type}},
+             await movies_col.update_one(
+             {"caption": caption_text.lower()},
+           {"$set": {"file_id": file_id, "file_name": file_name, "file_type": file_type}},
             upsert=True
-        )
+             )
         
 
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
