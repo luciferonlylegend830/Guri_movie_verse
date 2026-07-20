@@ -20,7 +20,7 @@ movies_col = db["movies"]
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-TOKEN = "8942349455:AAGrcoY16mYheXkze0dha6pelgaZUuJ7HjU"
+TOKEN = "8942349455:AAGWtwN5S2HEZTqC4tlwzZe1d5aLvfvgylE"
 CHANNEL_ID = -1002748829128 
 
 async def delete_message_after_delay(context, chat_id, message_id):
