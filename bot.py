@@ -4,6 +4,11 @@ import asyncio
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from aiohttp import web
+from motor.motor_asyncio import AsyncIOMotorClient
+MONGO_URI = "mongodb+srv://luciferonlylegend830_db_user:GuriSingh@123@guricluster.f3ytryg.mongodb.net/?retryWrites=true&w=majority&appName=GURICLUSTER"
+client = AsyncIOMotorClient(MONGO_URI)
+db = client['GURICLUSTER']
+movies_col = db['movies']
 async def delete_message_after_delay(context, chat_id, message_id):
     await asyncio.sleep(300) # 5 मिनट का वेट
     try:
@@ -15,10 +20,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 TOKEN = "8942349455:AAGrcoY16mYheXkze0dha6pelgaZUuJ7HjU"
 CHANNEL_ID = -1002748829128 # Guri Movies Verse Channel ID
-
-# मूवीज को स्टोर करने के लिए एक टेम्परेरी मेमोरी (डिक्शनरी)
-movie_database = {}
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("hello guys! I'm wakeup Find your movie in the group.")
 
@@ -51,34 +52,27 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 file_name = message.document.file_name
                 
         if file_id:
-            # कैप्शन के छोटे अक्षरों में सेव करेंगे ताकि सर्च आसान हो
-            movie_database[caption_text.lower()] = {
-                "file_id": file_id,
-                "file_type": file_type,
-                "file_name": file_name
-            }
+                        await movies_col.update_one(
+                {"caption": caption_text.lower()},
+                {"$set": {"file_id": file_id, "file_type": file_type, "file_name": file_name}},
+                upsert=True
+                        )
+            
             logging.info(f"Saved movie: {file_name}")
 
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.message.text.strip().lower()
-    
-    # 1. सुरक्षा: अगर सर्च 5 अक्षरों से छोटी है
+# 1. सुरक्षा: अगर सर्च 5 अक्षरों से छोटी है
     if len(query) < 5:
         await update.message.reply_text("❌ कृपया कम से कम 5 अक्षरों का नाम लिखें।")
         return
-
-    results = [] 
-    # डेटाबेस में मैच ढूँढें
-    for caption, data in movie_database.items():
-        if query in caption:
-            results.append(data)
-            
+ # डेटाबेस से सर्च करें
+    results = await movies_col.find({"caption": {"$regex": query, "$options": "i"}}).to_list(length=10)
     # 2. अगर कोई रिजल्ट नहीं मिला
     if not results:
         await update.message.reply_text("❌ Sorry, this movie was not found.")
         return
-
-    # 3. सुरक्षा: सिर्फ पहली 1 मूवी भेजें
+  # 3. सुरक्षा: सिर्फ पहली 1 मूवी भेजें
         data = results[0] 
     if data['file_type'] == "video":
         sent_msg = await context.bot.send_video(
