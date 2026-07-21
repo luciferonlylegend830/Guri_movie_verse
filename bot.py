@@ -58,7 +58,7 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
             file_name = message.document.file_name
 
     if file_id:
-    await movies_col.update_one(
+        await movies_col.update_one(
         {"file_id": file_id},
         {"$set": {"file_id": file_id, "file_name": file_name, "file_type": file_type, "caption": caption_text.lower()}},
         upsert=True
