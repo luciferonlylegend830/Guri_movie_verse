@@ -95,27 +95,30 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle(request):
     return web.Response(text="Bot is running smoothly!")
-
+    
 async def main():
     app = Application.builder().token(TOKEN).build()
+
+    # सभी जरूरी हैंडlers
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.Chat(chat_id=CHANNEL_ID), save_channel_posts))
+    app.add_handler(MessageHandler(filters.chat(chat_id=int(os.environ.get("CHANNEL_ID", -1002748829128))) & ~filters.COMMAND, save_channel_posts))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
-    
+
     await app.initialize()
     await app.start()
     print("Bot started...")
-    
+
+    # Render के लिए वेब सर्वर सेटअप
     app_web = web.Application()
     app_web.router.add_get('/', handle)
     runner = web.AppRunner(app_web)
     await runner.setup()
     site = web.TCPSite(runner, '0.0.0.0', int(os.environ.get('PORT', 10000)))
     await site.start()
-    
-    await app.updater.start_polling()
+
+    # बोट को चालू रखने के लिए
     await asyncio.Event().wait()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())
-            
+    
