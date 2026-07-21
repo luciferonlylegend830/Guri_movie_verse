@@ -101,7 +101,7 @@ async def main():
 
     # सभी जरूरी हैंडlers
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.chat(chat_id=int(os.environ.get("CHANNEL_ID", -1002748829128))) & ~filters.COMMAND, save_channel_posts))
+    app.add_handler(MessageHandler(~filters.COMMAND, save_channel_posts))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
 
     await app.initialize()
