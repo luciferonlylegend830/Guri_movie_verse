@@ -31,7 +31,7 @@ async def delete_message_after_delay(context, chat_id, message_id):
         logging.error(f"Error deleting message: {e}")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hello! I am awake. Find your movie in the group.")
+    await update.message.reply_text("Hello! I am awake. Send me a movie name to search.")
 
 async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.channel_post
@@ -49,11 +49,13 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if message.video:
         file_id = message.video.file_id
         file_type = "video"
-        if message.video.file_name: file_name = message.video.file_name
+        if message.video.file_name: 
+            file_name = message.video.file_name
     elif message.document:
         file_id = message.document.file_id
         file_type = "document"
-        if message.document.file_name: file_name = message.document.file_name
+        if message.document.file_name: 
+            file_name = message.document.file_name
 
     if file_id:
         await movies_col.update_one(
@@ -63,7 +65,11 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
         )
 
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not update.message or not update.message.text:
+        return
+        
     query = update.message.text.strip().lower()
+    
     if len(query) < 5:
         await update.message.reply_text("❌ Please enter a movie name with at least 5 characters.")
         return
@@ -77,12 +83,16 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = results[0]
     caption = f"🎬 **{data.get('file_name', 'Movie')}**\n🔗 Join: @GuriMoviesVerse 🍿🎥\n⚠️ This file will be auto-deleted in 5 minutes."
     
-    if data.get('file_type') == "video":
-        sent_msg = await context.bot.send_video(chat_id=update.effective_chat.id, video=data['file_id'], caption=caption)
-    else:
-        sent_msg = await context.bot.send_document(chat_id=update.effective_chat.id, document=data['file_id'], caption=caption)
-    
-    asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+    try:
+        if data.get('file_type') == "video":
+            sent_msg = await context.bot.send_video(chat_id=update.effective_chat.id, video=data['file_id'], caption=caption)
+        else:
+            sent_msg = await context.bot.send_document(chat_id=update.effective_chat.id, document=data['file_id'], caption=caption)
+        
+        asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
+    except Exception as e:
+        logging.error(f"Error sending file: {e}")
+        await update.message.reply_text("❌ Error sending the movie file.")
 
 async def handle(request):
     return web.Response(text="Bot is running smoothly!")
@@ -109,4 +119,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-    
+            
