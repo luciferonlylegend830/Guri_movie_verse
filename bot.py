@@ -66,14 +66,13 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
-        
+
     query = update.message.text.strip().lower()
 
-if not query:
-    await update.message.reply_text("❌ Please enter a movie name.")
-    return
-    
-
+    if not query:
+        await update.message.reply_text("❌ Please enter a movie name.")
+        return
+        
     results = await movies_col.find({"caption": {"$regex": query, "$options": "i"}}).to_list(length=10)
     
     if not results:
