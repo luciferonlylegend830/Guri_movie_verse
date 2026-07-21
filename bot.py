@@ -58,23 +58,23 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
             file_name = message.document.file_name
 
     if file_id:
-        await movies_col.update_one(
-            {"caption": caption_text.lower()},
-            {"$set": {"file_id": file_id, "file_name": file_name, "file_type": file_type}},
-            upsert=True
-        )
-
+    await movies_col.update_one(
+        {"file_id": file_id},
+        {"$set": {"file_id": file_id, "file_name": file_name, "file_type": file_type, "caption": caption_text.lower()}},
+        upsert=True
+    )
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
         
     query = update.message.text.strip().lower()
-    
-    if len(query) < 5:
-        await update.message.reply_text("❌ Please enter a movie name with at least 5 characters.")
-        return
 
-    results = await movies_col.find({"caption": {"$regex": query, "$options": "i"}}).to_list(length=1)
+if not query:
+    await update.message.reply_text("❌ Please enter a movie name.")
+    return
+    
+
+    results = await movies_col.find({"caption": {"$regex": query, "$options": "i"}}).to_list(length=10)
     
     if not results:
         await update.message.reply_text("❌ Sorry, this movie was not found.")
