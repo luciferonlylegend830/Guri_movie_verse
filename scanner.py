@@ -16,7 +16,9 @@ async def main():
         if message.video or message.document:
             caption_text = message.text or ""
             file_name = caption_text.split('\n')[0] if caption_text else "Unknown Movie"
-            file_id = message.video.file_id if message.video else message.document.file_id
+            
+            # यहाँ एरर ठीक कर दिया गया है
+            file_id = message.video.id if message.video else message.document.id
             
             movies[file_name.lower()] = {
                 "file_id": file_id,
