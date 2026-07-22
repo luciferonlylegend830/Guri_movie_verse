@@ -95,7 +95,9 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle(request):
     return web.Response(text="Bot is running smoothly!")
-    
+async def handle(request):
+    return web.Response(text="Bot is running smoothly!")
+
 async def main():
     app = Application.builder().token(TOKEN).build()
     
@@ -112,13 +114,15 @@ async def main():
     site = web.TCPSite(runner, '0.0.0.0', int(os.environ.get('PORT', 10000)))
     await site.start()
     
-    # बोट को शुरू करने और Telegram से जोड़ने के लिए (यही लाइन छूटी थी)
+    # बोट को शुरू करने और Telegram से जोड़ने के लिए
     await app.initialize()
     await app.start()
     await app.updater.start_polling()
-    print("Bot started and polling...")
+    print("Bot started and polling smoothly...")
 
     # बोट को चालू रखने के लिए
     await asyncio.Event().wait()
-    
+
+if __name__ == "__main__":
+    asyncio.run(main())
     
