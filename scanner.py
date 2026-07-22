@@ -14,7 +14,7 @@ async def main():
     print("Scanning channel...")
     async for message in client.iter_messages(channel_username):
         if message.video or message.document:
-            caption_text = message.caption or message.text or ""
+            caption_text = message.text or ""
             file_name = caption_text.split('\n')[0] if caption_text else "Unknown Movie"
             file_id = message.video.file_id if message.video else message.document.file_id
             
