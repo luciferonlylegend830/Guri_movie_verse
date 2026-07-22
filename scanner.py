@@ -11,7 +11,7 @@ async def main():
     channel_username = -1002748829128 
     movies = {}
         # चैनल के सभी मैसेज को स्कैन करेगा
-        print("Scanning channel...")
+print("Scanning channel...")
     # चैनल के सभी मैसेज को स्कैन करेगा
     async for message in client.iter_messages(channel_username):
         if message.video or message.document:
