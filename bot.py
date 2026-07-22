@@ -98,21 +98,12 @@ async def handle(request):
     
 async def main():
     app = Application.builder().token(TOKEN).build()
-
-        # सभी जरूरी हैंडlers (सुधारे हुए)
+    
+    # सभी जरूरी हैंडlers
     app.add_handler(CommandHandler("start", start))
-    
-    # सिर्फ आपके चैनल के पोस्ट्स को सेव करने के लिए
     app.add_handler(MessageHandler(filters.Chat(chat_id=CHANNEL_ID) & (~filters.COMMAND), save_channel_posts))
-    
-    # सिर्फ यूजर की पर्सनल चैट से मूवी सर्च करने के लिए
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND) & ~filters.Chat(chat_id=CHANNEL_ID), search_movie))
     
-
-    await app.initialize()
-    await app.start()
-    print("Bot started...")
-
     # Render के लिए वेब सर्वर सेटअप
     app_web = web.Application()
     app_web.router.add_get('/', handle)
@@ -120,10 +111,14 @@ async def main():
     await runner.setup()
     site = web.TCPSite(runner, '0.0.0.0', int(os.environ.get('PORT', 10000)))
     await site.start()
+    
+    # बोट को शुरू करने और Telegram से जोड़ने के लिए (यही लाइन छूटी थी)
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling()
+    print("Bot started and polling...")
 
     # बोट को चालू रखने के लिए
     await asyncio.Event().wait()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    
     
