@@ -99,10 +99,15 @@ async def handle(request):
 async def main():
     app = Application.builder().token(TOKEN).build()
 
-    # सभी जरूरी हैंडlers
+        # सभी जरूरी हैंडlers (सुधारे हुए)
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(~filters.COMMAND, save_channel_posts))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, search_movie))
+    
+    # सिर्फ आपके चैनल के पोस्ट्स को सेव करने के लिए
+    app.add_handler(MessageHandler(filters.Chat(chat_id=CHANNEL_ID) & (~filters.COMMAND), save_channel_posts))
+    
+    # सिर्फ यूजर की पर्सनल चैट से मूवी सर्च करने के लिए
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND) & ~filters.Chat(chat_id=CHANNEL_ID), search_movie))
+    
 
     await app.initialize()
     await app.start()
