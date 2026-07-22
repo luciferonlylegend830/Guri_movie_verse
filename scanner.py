@@ -18,7 +18,7 @@ async def main():
             file_name = caption_text.split('\n')[0] if caption_text else "Unknown Movie"
             
             # यहाँ एरर ठीक कर दिया गया है
-            file_id = message.media.file_id
+            file_id = message.media.id
             
             movies[file_name.lower()] = {
                 "file_id": file_id,
