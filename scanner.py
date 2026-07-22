@@ -10,19 +10,23 @@ async def main():
     # चैनल की ID डालें (-1002748829128)
     channel_username = -1002748829128 
     movies = {}
-
-    print("Scanning channel...")
+        # चैनल के सभी मैसेज को स्कैन करेगा
+        print("Scanning channel...")
     # चैनल के सभी मैसेज को स्कैन करेगा
     async for message in client.iter_messages(channel_username):
         if message.video or message.document:
-            file_name = message.file.name or "Unknown Movie"
-            file_id = message.file.id
-            movies[message.text.lower() if message.text else "unknown"] = {
+            caption_text = message.caption or message.text or ""
+            file_name = caption_text.split('\n')[0] if caption_text else "Unknown Movie"
+            file_id = message.video.file_id if message.video else message.document.file_id
+            
+            movies[file_name.lower()] = {
                 "file_id": file_id,
                 "file_type": "video" if message.video else "document",
                 "file_name": file_name
             }
             print(f"Added: {file_name}")
+            
+            
 
     # सारी मूवीज़ को एक फाइल में सेव करेगा
     with open('movies.json', 'w') as f:
