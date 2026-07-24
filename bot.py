@@ -1,14 +1,20 @@
 import pymongo
+from urllib.parse import quote_plus
 
 try:
-    uri = "mongodb://luciferonlylegend830_db_user:Gurisingh40%123@guricluster-shard-00-00.f3yt7lg.mongodb.net:27017,guricluster-shard-00-01.f3yt7lg.mongodb.net:27017,guricluster-shard-00-02.f3yt7lg.mongodb.net:27017/?ssl=true&replicaSet=atlas-shard-0&authSource=admin&retryWrites=true&w=majority"
-    client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=20000)
-    db = client['guri_flix']
-    col = db['files']
+    username = quote_plus('luciferonlylegend830_db_user')
+    password = quote_plus('Gurisingh40@123')
+    cluster_url = 'guricluster.f3ytryg.mongodb.net'
+    MONGO_URI = f"mongodb+srv://{username}:{password}@{cluster_url}/?retryWrites=true&w=majority"
 
-    # यहाँ पुराना यूज़रनेम/लिंक डाला है ताकि वह उसे ढूँढकर नए से बदल सके
-    r1 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "@Ammedia07", "replacement": "@Gurimoviesverse"}}}})
-    r2 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "https://t.me/Ammedia07", "replacement": "https://t.me/Gurimoviesverse"}}}})
+    client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=20000)
+    
+    # स्क्रीनशॉट के हिसाब से सही डेटाबेस और कलेक्शन (फोल्डर) का नाम
+    db = client['guri_flix']
+    col = db['movies']
+
+    r1 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "@AMmedia07", "replacement": "@Gurimoviesverse"}}}})
+    r2 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "https://t.me/AMmedia07", "replacement": "https://t.me/Gurimoviesverse"}}}})
     
     print(f"डेटाबेस अपडेट हो गया! कुल बदले गए डेटा: {r1.modified_count + r2.modified_count}")
 except Exception as e:
