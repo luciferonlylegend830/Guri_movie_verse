@@ -6,8 +6,10 @@ try:
     db = client['guri_flix']
     col = db['files']
 
-    r1 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "@AWmedia07", "replacement": "@Gurimoviesverse"}}}})
-    r2 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "https://t.me/AWmedia07", "replacement": "https://t.me/Gurimoviesverse"}}}})
+    # यहाँ पुराना यूज़रनेम/लिंक डाला है ताकि वह उसे ढूँढकर नए से बदल सके
+    r1 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "@Ammedia07", "replacement": "@Gurimoviesverse"}}}})
+    r2 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "https://t.me/Ammedia07", "replacement": "https://t.me/Gurimoviesverse"}}}})
+    
     print(f"डेटाबेस अपडेट हो गया! कुल बदले गए डेटा: {r1.modified_count + r2.modified_count}")
 except Exception as e:
     print("एरर:", e)
