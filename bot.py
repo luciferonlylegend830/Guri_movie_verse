@@ -1,25 +1,4 @@
 import pymongo
-from urllib.parse import quote_plus
-
-try:
-    username = quote_plus('luciferonlylegend830_db_user')
-    password = quote_plus('Gurisingh40@123')
-    cluster_url = 'guricluster.f3ytryg.mongodb.net'
-    MONGO_URI = f"mongodb+srv://{username}:{password}@{cluster_url}/?retryWrites=true&w=majority"
-
-    client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=20000)
-    
-    # स्क्रीनशॉट के हिसाब से सही डेटाबेस और कलेक्शन (फोल्डर) का नाम
-    db = client['guri_flix']
-    col = db['movies']
-
-    r1 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "@AMmedia07", "replacement": "@Gurimoviesverse"}}}})
-    r2 = col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "https://t.me/AMmedia07", "replacement": "https://t.me/Gurimoviesverse"}}}})
-    
-    print(f"डेटाबेस अपडेट हो गया! कुल बदले गए डेटा: {r1.modified_count + r2.modified_count}")
-except Exception as e:
-    print("एरर:", e)
-    
 import logging
 import os
 import asyncio
@@ -29,24 +8,40 @@ from aiohttp import web
 from motor.motor_asyncio import AsyncIOMotorClient
 from urllib.parse import quote_plus
 
-# Database credentials
+# --- 1. डेटाबेस के पुराने links (@AMmedia07) को अपने आप अपडेट करने का कोड ---
+try:
+    username = quote_plus('luciferonlylegend830_db_user')
+    password = quote_plus('Gurisingh40@123')
+    cluster_url = 'guricluster.f3ytryg.mongodb.net'
+    MONGO_URI_SYNC = f"mongodb+srv://{username}:{password}@{cluster_url}/?retryWrites=true&w=majority"
+
+    sync_client = pymongo.MongoClient(MONGO_URI_SYNC, serverSelectionTimeoutMS=20000)
+    sync_db = sync_client['guri_flix']
+    sync_col = sync_db['movies']
+
+    r1 = sync_col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "@AMmedia07", "replacement": "@Gurimoviesverse"}}}})
+    r2 = sync_col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "https://t.me/AMmedia07", "replacement": "https://t.me/Gurimoviesverse"}}}})
+    print(f"डेटाबेस अपडेट हो गया! कुल बदले गए डेटा: {r1.modified_count + r2.modified_count}")
+except Exception as e:
+    print("अपडेट एरर:", e)
+
+# --- 2. बोट सेटिंग्स और सही डेटाबेस कनेक्शन (`guri_flix` और `movies` फोल्डर) ---
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+TOKEN = "894234945:AAGWtnN52HEZTqC4tlwzZe1d5aLvfvgy1E"
+CHANNEL_ID = -1002748829128
+
 username = quote_plus("luciferonlylegend830_db_user")
-password = quote_plus("Gurisingh@123")
+password = quote_plus("Gurisingh40@123")
 cluster_url = "guricluster.f3ytryg.mongodb.net"
 MONGO_URI = f"mongodb+srv://{username}:{password}@{cluster_url}/?retryWrites=true&w=majority"
 
-# Database connection setup
 client = AsyncIOMotorClient(MONGO_URI)
-db = client["movie_database"] 
-movies_col = db["movies"]
-
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
-TOKEN = "8942349455:AAGWtwN5S2HEZTqC4tlwzZe1d5aLvfvgylE"
-CHANNEL_ID = -1002748829128 
+db = client['guri_flix']
+movies_col = db['movies']
 
 async def delete_message_after_delay(context, chat_id, message_id):
-    await asyncio.sleep(300) 
+    await asyncio.sleep(300)
     try:
         await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
     except Exception as e:
@@ -59,7 +54,7 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
     message = update.channel_post
     if not message:
         return
-        
+
     caption_text = message.caption or message.text or ""
     if not caption_text:
         return
@@ -71,20 +66,21 @@ async def save_channel_posts(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if message.video:
         file_id = message.video.file_id
         file_type = "video"
-        if message.video.file_name: 
+        if message.video.file_name:
             file_name = message.video.file_name
     elif message.document:
         file_id = message.document.file_id
         file_type = "document"
-        if message.document.file_name: 
+        if message.document.file_name:
             file_name = message.document.file_name
 
     if file_id:
         await movies_col.update_one(
-        {"file_id": file_id},
-        {"$set": {"file_id": file_id, "file_name": file_name, "file_type": file_type, "caption": caption_text.lower()}},
-        upsert=True
-    )
+            {"file_id": file_id},
+            {"$set": {"file_id": file_id, "file_name": file_name, "file_type": file_type, "caption": caption_text.lower()}},
+            upsert=True
+        )
+
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
@@ -94,21 +90,21 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not query:
         await update.message.reply_text("❌ Please enter a movie name.")
         return
-        
+
     results = await movies_col.find({"caption": {"$regex": query, "$options": "i"}}).to_list(length=10)
-    
+
     if not results:
         await update.message.reply_text("❌ Sorry, this movie was not found.")
         return
 
     data = results[0]
-    caption = f"🎬 **{data.get('file_name', 'Movie')}**\n🔗 Join: @GuriMoviesVerse 🍿🎥\n⚠️ This file will be auto-deleted in 5 minutes."
-    
+    caption = f"🎬 **{data.get('file_name', 'Movie')}**\n🔗 Join: @Gurimoviesverse 🍿🎥\n⚠️ This file will be auto-deleted after 5 minutes."
+
     try:
         if data.get('file_type') == "video":
-            sent_msg = await context.bot.send_video(chat_id=update.effective_chat.id, video=data['file_id'], caption=caption)
+            sent_msg = await context.bot.send_video(chat_id=update.effective_chat.id, video=data['file_id'], caption=caption, parse_mode="Markdown")
         else:
-            sent_msg = await context.bot.send_document(chat_id=update.effective_chat.id, document=data['file_id'], caption=caption)
+            sent_msg = await context.bot.send_document(chat_id=update.effective_chat.id, document=data['file_id'], caption=caption, parse_mode="Markdown")
         
         asyncio.create_task(delete_message_after_delay(context, update.effective_chat.id, sent_msg.message_id))
     except Exception as e:
@@ -117,33 +113,28 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle(request):
     return web.Response(text="Bot is running smoothly!")
-async def handle(request):
-    return web.Response(text="Bot is running smoothly!")
 
 async def main():
     app = Application.builder().token(TOKEN).build()
-    
-    # सभी जरूरी हैंडlers
+
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.Chat(chat_id=CHANNEL_ID) & (~filters.COMMAND), save_channel_posts))
-    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND) & ~filters.Chat(chat_id=CHANNEL_ID), search_movie))
-    
-    # Render के लिए वेब सर्वर सेटअप
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND) & (~filters.Chat(chat_id=CHANNEL_ID)), search_movie))
+
     app_web = web.Application()
     app_web.router.add_get('/', handle)
     runner = web.AppRunner(app_web)
     await runner.setup()
     site = web.TCPSite(runner, '0.0.0.0', int(os.environ.get('PORT', 10000)))
     await site.start()
-    
-    # बोट को शुरू करने और Telegram से जोड़ने के लिए
+
     await app.initialize()
     await app.start()
     await app.updater.start_polling()
     print("Bot started and polling smoothly...")
 
-    # बोट को चालू रखने के लिए
     await asyncio.Event().wait()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())
+    
