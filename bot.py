@@ -28,7 +28,7 @@ except Exception as e:
 # --- 2. बोट सेटिंग्स और सही डेटाबेस कनेक्शन (`guri_flix` और `movies` फोल्डर) ---
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-TOKEN = "894234945:AAGWtnN52HEZTqC4tlwzZe1d5aLvfvgy1E"
+TOKEN = "8942349455:AAGWtwN5S2HEZTqC4tlwzZe1d5aLvfvgylE"
 CHANNEL_ID = -1002748829128
 
 username = quote_plus("luciferonlylegend830_db_user")
