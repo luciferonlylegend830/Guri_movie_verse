@@ -7,24 +7,6 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from aiohttp import web
 from motor.motor_asyncio import AsyncIOMotorClient
 from urllib.parse import quote_plus
-
-# --- 1. डेटाबेस के पुराने links (@AMmedia07) को अपने आप अपडेट करने का कोड ---
-try:
-    username = quote_plus('luciferonlylegend830_db_user')
-    password = quote_plus('Gurisingh40@123')
-    cluster_url = 'guricluster.f3ytryg.mongodb.net'
-    MONGO_URI_SYNC = f"mongodb+srv://{username}:{password}@{cluster_url}/?retryWrites=true&w=majority"
-
-    sync_client = pymongo.MongoClient(MONGO_URI_SYNC, serverSelectionTimeoutMS=20000)
-    sync_db = sync_client['guri_flix']
-    sync_col = sync_db['movies']
-
-    r1 = sync_col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "@AMmedia07", "replacement": "@Gurimoviesverse"}}}})
-    r2 = sync_col.update_many({}, {"$set": {"caption": {"$replaceAll": {"input": "$caption", "find": "https://t.me/AMmedia07", "replacement": "https://t.me/Gurimoviesverse"}}}})
-    print(f"डेटाबेस अपडेट हो गया! कुल बदले गए डेटा: {r1.modified_count + r2.modified_count}")
-except Exception as e:
-    print("अपडेट एरर:", e)
-
 # --- 2. बोट सेटिंग्स और सही डेटाबेस कनेक्शन (`guri_flix` और `movies` फोल्डर) ---
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
